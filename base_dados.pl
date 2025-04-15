@@ -1,6 +1,7 @@
 % O arquivo é responsável por armazenar a base de dados(banco de questões) do quiz.
 % A sintaxe segue o seguinte padrão: pergunta(ID, TextoDaPergunta, [OpçãoA, OpçãoB, OpçãoC, OpçãoD], RespostaCorreta).
 
+% Fatos:
 pergunta(1, 'Qual é a capital da França?', ['Paris', 'Londres', 'Roma', 'Berlim'], 'Paris').
 pergunta(2, 'Quem escreveu "As crônicas de gelo e fogo"?', ['J.K. Rowling', 'J.R.R Tolkien', 'Alexandre Dumas', 'George R.R. Martin'], 'George R.R. Martin').
 pergunta(3, 'Em que ano iniciou-se a revolução francesa?', ['1789', '1764', '1800', '1716'], '1789').
@@ -101,3 +102,9 @@ pergunta(97, 'Quem foi o herói grego da Odisseia?', ['Aquiles', 'Teseu', 'Uliss
 pergunta(98, 'Qual foi a principal motivação das Cruzadas na Idade Média?', ['Conquistar a Inglaterra', 'Expandir o comércio', 'Tomar Jerusalém dos muçulmanos', 'Colonizar a América'], 'Tomar Jerusalém dos muçulmanos').
 pergunta(99, 'Quem foi a deusa da sabedoria na mitologia grega?', ['Afrodite', 'Hera', 'Deméter', 'Atena'], 'Atena').
 pergunta(100, 'Qual povo invadiu o Império Romano do Ocidente contribuindo para o início da Idade Média?', ['Gregos', 'Mongóis', 'Vândalos', 'Normandos'], 'Vândalos').
+
+% Regras:
+
+verificar_correta(X, Resposta) :- 
+pergunta(X, _, _, Correta),
+Resposta == Correta.
