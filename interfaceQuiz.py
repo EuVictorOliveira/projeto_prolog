@@ -1,10 +1,12 @@
 import subprocess
 import tkinter as tk
+from random import randint
 
 # Define o caminho para conexão com o quiz
 PROLOG_PATH = ["swipl", "-q", "-s", "quiz.pl", "-g"]
 
-id_pergunta = 1
+id_pergunta = randint(1, 100)
+ids_usados = []
 pontuacao = 0
 ultima_resposta = None
 botao_reiniciar = None
@@ -18,14 +20,14 @@ def executar_prolog(comando):
     except Exception as e:
         print(f"Não foi possível executar o prolog: {e}")
         return ""
-
+        
 # Função para mostrar perguntas
 def carregar_pergunta():
-    global id_pergunta, pergunta_label, botoes_opcao, ultima_resposta
-
+    global id_pergunta, pergunta_label, botoes_opcao, ultima_resposta, ids_usados
+    
     # chama a função exibe pergunta de quiz.pl
     resultado = executar_prolog(f"exibe_pergunta({id_pergunta}), halt.")
-    if not resultado or '[' not in resultado:
+    if not resultado or '[' not in resultado or len(ids_usados) == 100:
         finalizar_quiz()
         return
 
@@ -43,7 +45,7 @@ def carregar_pergunta():
 
 # Função responsável por implementar e tratar resposta do usuário
 def responder(opcao):
-    global id_pergunta, pontuacao, resultado_label
+    global id_pergunta, pontuacao, resultado_label, ids_usados
 
     # Chama função de verificação de resposta do prolog
     resultado = executar_prolog(f"verifica_resposta({id_pergunta}, {opcao}), halt.")
@@ -53,7 +55,15 @@ def responder(opcao):
     else:
         resultado_label.config(text="Errado!")
 
-    id_pergunta += 1
+    ids_usados.append(id_pergunta)
+
+    while True:
+        id_pergunta = randint(1, 100)
+        if len(ids_usados) == 100:
+            break
+        elif id_pergunta not in ids_usados:
+            break
+
     root.after(1000, carregar_pergunta)
 
 # Função de finalização do quiz.
@@ -72,8 +82,9 @@ def finalizar_quiz(manual=False):
 
 # Função que permite que o usuário reinicie o quiz
 def reiniciar_quiz():
-    global id_pergunta, pontuacao
-    id_pergunta = 1
+    global id_pergunta, pontuacao, ids_usados
+    id_pergunta = randint(0, 100)
+    ids_usados = []
     pontuacao = 0
     resultado_label.config(text="")
     for btn in botoes_opcao:
