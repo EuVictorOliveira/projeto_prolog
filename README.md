@@ -2,7 +2,7 @@
 
 Projeto final da disciplina "Lógica Aplicada à computação" realizado pelos alunos João Victor, Kevin Gabriel e Victor Gabriel.
 
-Instruções de como jogar:
+### Instruções de como jogar:
 
 1- Certifique-se de já ter o swi prolog instalado.
 2- Clone o repositório.\n
