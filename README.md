@@ -1,10 +1,38 @@
-# projeto_prolog
+# Quiz em Prolog
 
-Projeto final da disciplina "Lógica Aplicada à computação" realizado pelos alunos João Victor, Kevin Gabriel e Victor Gabriel.
+Este projeto consiste em um quiz desenvolvido em **Prolog**, com perguntas de múltipla escolha e apenas uma resposta correta por questão. .
 
-### Instruções de como jogar:
+## 🎮 Como Jogar
 
-1- Certifique-se de já ter o swi prolog instalado.
-2- Clone o repositório.\n
-3- No cmd, use o comando [quiz]. para rodar o arquivo quiz.pl
-4- para startar o jogo, digite iniciar_quiz. no cmd
+### Pré-requisitos
+
+Você precisa ter o **SWI-Prolog** instalado em sua máquina.  
+Para instalar, siga as instruções no site oficial: [https://www.swi-prolog.org/Download.html](https://www.swi-prolog.org/Download.html)
+
+### Instruções
+
+1. Clone este repositório:
+
+   git clone https://github.com/EuVictorOliveira/projeto_prolog.git
+   
+3. Execute o Prolog:
+
+   swipl
+
+4. Carregue o arquivo do quiz:
+
+   ?- [quiz].
+
+5. Inicie o jogo com o comando:
+
+   ?- iniciar_quiz.
+
+   O sistema apresentará perguntas com quatro alternativas. Basta digitar o único correspondente correspondente à opção correta.
+   Sempre que quiser finalizar o quiz, basta digitar '0.'. O quiz será encerrado imediatamente a pontuação exibida no console.
+
+## 👥 Contribuidores
+
+- [João Victor Oliveira](https://github.com/joaosilva)
+- [Kevin Gabriel Morais Mangueira](https://github.com/Melvin2781)
+- [Victor Gabriel da Silva Menezes](https://github.com/Vitin0N)
+
