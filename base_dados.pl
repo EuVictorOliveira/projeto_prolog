@@ -1,7 +1,7 @@
 % O arquivo é responsável por armazenar a base de dados(banco de questões) do quiz.
 % A sintaxe segue o seguinte padrão: pergunta(ID, TextoDaPergunta, [OpçãoA, OpçãoB, OpçãoC, OpçãoD], RespostaCorreta).
 
-% Ajuste para permitir caracteres especiais
+% Ajuste para permitir caracteres
 :- encoding(utf8).
 
 % Fatos:
@@ -10,7 +10,7 @@ pergunta(2, 'Quem escreveu "As crônicas de gelo e fogo"?', ['J.K. Rowling', 'J.
 pergunta(3, 'Em que ano iniciou-se a revolução francesa?', ['1789', '1764', '1800', '1716'], '1789').
 pergunta(4, 'Qual é o menor país do mundo?', ['Montenegro', 'Mônaco', 'Andorra', 'Vaticano'], 'Vaticano').
 pergunta(5, 'Quem foi o inventor da corrente alternada?', ['Hippolyte Pixii', 'Nikola Tesla', 'Thomas Edison', 'Marie Curie'], 'Hippolyte Pixii').
-pergunta(6, 'Qual figura histórica é conhecida como "O pai da Europa"?', ['Vladimir III', 'Pedro, o grande', 'Carlos Magno', 'Jesus Cristo'], 'Carlos Magno').
+pergunta(6, 'Qual figura histórica é conhecida como "O pai da Europa"?', ['Vladimir III', 'Pedro o grande', 'Carlos Magno', 'Jesus Cristo'], 'Carlos Magno').
 pergunta(7, 'Em que ano o homem foi à lua?', ['1969', '1964', '1976', '1957'], '1969').
 pergunta(8, 'Quem escreveu a Ilíada?', ['William Shakespeare', 'Homero', 'Plutarco', 'Aristóteles'], 'Homero').
 pergunta(9, 'Qual foi o maior império da história?', ['Britânico', 'Mongol', 'Romano', 'Otomano'], 'Britânico').
