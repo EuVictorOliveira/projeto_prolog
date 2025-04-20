@@ -148,7 +148,7 @@ canva.pack(fill="both", expand=True)
 canva.create_image(0, 0, anchor="nw", image=bg_interface)
 
 #----------------------------------
-# Adiciona botão Encerrar no canto inferior direito do canvas
+# Adiciona botão Encerrar no canto superior direito do canvas
 botao_acaba = tk.Button(
     root, 
     text="Encerrar", 
@@ -161,7 +161,7 @@ botao_acaba = tk.Button(
 )
 canva.create_window(480, 20, window=botao_acaba, anchor="ne")
 
-# Adiciona botão Reiniciar no canto superior direito, inicialmente invisível
+# Adiciona botão Reiniciar no canto superior esquerdo, inicialmente invisível
 botao_reiniciar = tk.Button(
     root, 
     text="Reiniciar Quiz", 
