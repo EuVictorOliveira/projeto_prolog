@@ -1,136 +1,114 @@
-import subprocess
 import tkinter as tk
-from random import randint
+from tkinter import PhotoImage
+from pyswip import Prolog
+import random
 
-# Define o caminho para conexão com o quiz
-PROLOG_PATH = ["swipl", "-q", "-s", "quiz.pl", "-g"]
+class QuizApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Quiz com Prolog")
+        self.root.geometry("800x600")
+        self.root.configure(bg="red")
 
-id_pergunta = randint(1, 100)
-ids_usados = []
-pontuacao = 0
-ultima_resposta = None
-botao_reiniciar = None
+        # Conectar com Prolog
+        self.perguntas = self.carregar_perguntas_prolog()
+        random.shuffle(self.perguntas)
 
-# Função definida para tentar executar o prolog
-def executar_prolog(comando):
-    # Tratamento de erro caso não seja possível executar
-    try:
-        resultado = subprocess.run(PROLOG_PATH + [comando], capture_output=True, text=True)
-        return resultado.stdout.strip()
-    except Exception as e:
-        print(f"Não foi possível executar o prolog: {e}")
-        return ""
-        
-# Função para mostrar perguntas
-def carregar_pergunta():
-    global id_pergunta, pergunta_label, botoes_opcao, ultima_resposta, ids_usados
-    
-    # chama a função exibe pergunta de quiz.pl
-    resultado = executar_prolog(f"exibe_pergunta({id_pergunta}), halt.")
-    if not resultado or '[' not in resultado or len(ids_usados) == 100:
-        finalizar_quiz()
-        return
+        # Fundo
+        self.canvas = tk.Canvas(root, width=800, height=600, bg="red", highlightthickness=0)
+        self.canvas.pack(fill="both", expand=True)
+        try:
+            self.bg = PhotoImage(file="imagemFundo.png")
+            self.canvas.create_image(0, 0, anchor="nw", image=self.bg)
+        except:
+            print("Imagem não encontrada, fundo vermelho aplicado.")
 
-    linhas = resultado.split('\n')
-    pergunta = linhas[0]
-    opcoes = linhas[1].strip('[]').split(',')
+        # Topo vermelho fixo
+        self.canvas.create_rectangle(0, 0, 800, 80, fill="red", outline="red")
 
-    pergunta_label.config(text=f"{pergunta.strip()}")
-    for i, btn in enumerate(botoes_opcao):
-        if i < len(opcoes):
-            texto = opcoes[i].strip().strip("'").strip('"')
-            btn.config(text=f"{i+1} - {texto}", state=tk.NORMAL, command=lambda idx=i+1: responder(idx))
+        self.pergunta_idx = 0
+        self.pontuacao = 0
+
+        self.frame_slide = tk.Frame(self.canvas, bg="red")
+        self.frame_slide.place(x=800, y=100)  # Começa fora da tela para animar entrada
+
+        self.label_pergunta = tk.Label(self.frame_slide, text="", font=("Arial", 20, "bold"),
+                                       bg="red", fg="white", wraplength=700, justify="center")
+        self.label_pergunta.pack(pady=10)
+
+        self.botoes = []
+        for i in range(4):
+            btn = tk.Button(self.frame_slide, text="", font=("Arial", 14), width=30, height=2,
+                            bg="white", fg="black", command=lambda i=i: self.verificar(i))
+            btn.pack(pady=5)
+            self.botoes.append(btn)
+
+        self.animar_entrada()
+
+    def carregar_perguntas_prolog(self):
+        prolog = Prolog()
+        prolog.consult("base_dados.pl")
+        perguntas = []
+        for p in prolog.query("pergunta(ID, P, L, R)"):
+            perguntas.append({
+                "pergunta": str(p["P"]),
+                "opcoes": list(map(str, p["L"])),
+                "resposta": str(p["R"])
+            })
+        return perguntas
+
+    def animar_entrada(self):
+        self.atualizar_pergunta()
+        x = 800
+
+        def slide():
+            nonlocal x
+            if x > 0:
+                x -= 40
+                self.frame_slide.place(x=x, y=100)
+                self.root.after(10, slide)
+            else:
+                self.frame_slide.place(x=0, y=100)
+        slide()
+
+    def atualizar_pergunta(self):
+        if self.pergunta_idx < len(self.perguntas):
+            p = self.perguntas[self.pergunta_idx]
+            self.label_pergunta.config(text=p["pergunta"])
+            opcoes = p["opcoes"]
+            random.shuffle(opcoes)
+            for i in range(4):
+                self.botoes[i].config(text=opcoes[i], bg="white", state="normal")
         else:
-            btn.config(text=" ", state=tk.DISABLED)
+            self.label_pergunta.config(text=f"Fim do Quiz! Pontuação: {self.pontuacao}/{len(self.perguntas)}")
+            for btn in self.botoes:
+                btn.pack_forget()
 
-# Função responsável por implementar e tratar resposta do usuário
-def responder(opcao):
-    global id_pergunta, pontuacao, resultado_label, ids_usados
+    def verificar(self, i):
+        resposta = self.botoes[i]["text"]
+        correta = self.perguntas[self.pergunta_idx]["resposta"]
 
-    # Chama função de verificação de resposta do prolog
-    resultado = executar_prolog(f"verifica_resposta({id_pergunta}, {opcao}), halt.")
-    if resultado == "correto":
-        pontuacao += 1
-        resultado_label.config(text="Correto!")
-    else:
-        resultado_label.config(text="Errado!")
+        for btn in self.botoes:
+            btn.config(state="disabled")
 
-    ids_usados.append(id_pergunta)
+        if resposta == correta:
+            self.botoes[i].config(bg="green")
+            self.pontuacao += 1
+        else:
+            self.botoes[i].config(bg="red")
+            for btn in self.botoes:
+                if btn["text"] == correta:
+                    btn.config(bg="green")
 
-    while True:
-        id_pergunta = randint(1, 100)
-        if len(ids_usados) == 100:
-            break
-        elif id_pergunta not in ids_usados:
-            break
+        self.root.after(1500, self.proxima)
 
-    root.after(1000, carregar_pergunta)
+    def proxima(self):
+        self.pergunta_idx += 1
+        self.frame_slide.place(x=800, y=100)
+        self.animar_entrada()
 
-# Função de finalização do quiz.
-def finalizar_quiz(manual=False):
-    if manual:
-        pergunta_label.config(text="Quiz encerrado!!!")
-    else:
-        pergunta_label.config(text="Fim do quiz!!!")
-
-    for btn in botoes_opcao:
-        btn.config(state=tk.DISABLED)
-
-    botao_finalizar.config(state=tk.DISABLED)
-    resultado_label.config(text=f"Sua pontuação foi: {pontuacao}")
-    botao_reiniciar.pack(pady=10)
-
-# Função que permite que o usuário reinicie o quiz
-def reiniciar_quiz():
-    global id_pergunta, pontuacao, ids_usados
-    id_pergunta = randint(0, 100)
-    ids_usados = []
-    pontuacao = 0
-    resultado_label.config(text="")
-    for btn in botoes_opcao:
-        btn.config(state=tk.NORMAL)
-    botao_finalizar.config(state=tk.NORMAL)
-    botao_reiniciar.pack_forget()
-    carregar_pergunta()
-
-# Início da interface
-root = tk.Tk()
-root.title("Quiz em Prolog")
-
-# Configuração do padrão das perguntas, qualquer alteração nesse sentido deve ser realizad aqui
-pergunta_label = tk.Label(root, text="", font=("Comic Sans MS", 14), wraplength=400, justify="center")
-pergunta_label.pack(pady=10)
-
-# Implementa botões de opção no mesmo padrão
-botoes_opcao = []
-for _ in range(4):
-    btn = tk.Button(root, text="", width=40, font=("Comic Sans MS", 12))
-    btn.pack(pady=2)
-    botoes_opcao.append(btn)
-
-# Botão para finalizar o quiz manualmente
-botao_finalizar = tk.Button(
-    root,
-    text="Finalizar Quiz",
-    font=("Comic Sans MS", 12),
-    bg="red",
-    fg="white",
-    command=lambda: finalizar_quiz(manual=True)
-)
-botao_finalizar.pack(pady=10)
-
-resultado_label = tk.Label(root, text="", font=("Comic Sans MS", 12))
-resultado_label.pack(pady=10)
-
-# Botão de reiniciar
-botao_reiniciar = tk.Button(
-    root,
-    text="Reiniciar Quiz",
-    font=("Comic Sans MS", 12),
-    bg="blue",
-    fg="white",
-    command=reiniciar_quiz
-)
-
-carregar_pergunta()
-root.mainloop()
+# Execução principal
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = QuizApp(root)
+    root.mainloop()
