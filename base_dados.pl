@@ -15,7 +15,7 @@ pergunta(7, 'Em que ano o homem foi à lua?', ['1969', '1964', '1976', '1957'], 
 pergunta(8, 'Quem escreveu a Ilíada?', ['William Shakespeare', 'Homero', 'Plutarco', 'Aristóteles'], 'Homero').
 pergunta(9, 'Qual foi o maior império da história?', ['Britânico', 'Mongol', 'Romano', 'Otomano'], 'Britânico').
 pergunta(10, 'Qual é o maior país do mundo?', ['China', 'Rússia', 'Brasil', 'Centro de informática'], 'Rússia').
-pergunta(11, 'Quem escreveu "O senhor dos Anéis"?', ['George Orwell', 'Clarice Lispector', 'Machado de Assis', 'J.R.R. Tolkien'], 'J.R.R Tolkien').
+pergunta(11, 'Quem escreveu "O senhor dos Anéis"?', ['George Orwell', 'Clarice Lispector', 'Machado de Assis', 'J.R.R. Tolkien'], 'J.R.R. Tolkien').
 pergunta(12, 'Quem foi o primeiro imperador romano?', ['Augusto César', 'Júlio César', 'Marco Aurélio', 'Tibério'], 'Augusto César').
 pergunta(13, 'Quem foi o primeiro presidente do Brasil?', ['Deodoro da Fonseca', 'Jânio Quadros', 'Getúlio Vargas', 'Prudente de Morais'], 'Deodoro da Fonseca').
 pergunta(14, 'Qual seleção ganhou a primeira copa do mundo?', ['Brasil', 'Uruguai', 'Inglaterra', 'Alemanha'], 'Uruguai').

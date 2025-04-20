@@ -5,7 +5,7 @@ from random import randint
 # Define o caminho para conexão com o quiz
 PROLOG_PATH = ["swipl", "-q", "-s", "quiz.pl", "-g"]
 
-id_pergunta = randint(1, 100)
+id_pergunta = 1
 ids_usados = []
 pontuacao = 0
 ultima_resposta = None
