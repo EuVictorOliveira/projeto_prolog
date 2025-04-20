@@ -58,7 +58,6 @@ Este projeto é um sistema de quiz de perguntas e respostas de múltipla escolha
 
    ```bash
    git clone https://github.com/EuVictorOliveira/projeto_prolog
-   cd quiz-prolog-python
    ```
 
 2. **Execute o script Python:**
