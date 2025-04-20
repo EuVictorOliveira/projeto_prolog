@@ -1,114 +1,197 @@
+import subprocess
 import tkinter as tk
-from tkinter import PhotoImage
-from pyswip import Prolog
-import random
+from random import randint
 
-class QuizApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Quiz com Prolog")
-        self.root.geometry("800x600")
-        self.root.configure(bg="red")
+# Define o caminho para conexão com o quiz
+PROLOG_PATH = ["swipl", "-q", "-s", "quiz.pl", "-g"]
 
-        # Conectar com Prolog
-        self.perguntas = self.carregar_perguntas_prolog()
-        random.shuffle(self.perguntas)
+id_pergunta = randint(1, 100)
+ids_usados = []
+pontuacao = 0
+ultima_resposta = None
+botao_reiniciar = None
 
-        # Fundo
-        self.canvas = tk.Canvas(root, width=800, height=600, bg="red", highlightthickness=0)
-        self.canvas.pack(fill="both", expand=True)
-        try:
-            self.bg = PhotoImage(file="imagemFundo.png")
-            self.canvas.create_image(0, 0, anchor="nw", image=self.bg)
-        except:
-            print("Imagem não encontrada, fundo vermelho aplicado.")
+def executar_prolog(comando):
+    # Tratamento de erro caso não seja possível executar
+    try:
+        resultado = subprocess.run(PROLOG_PATH + [comando], capture_output=True, text=True)
+        return resultado.stdout.strip()
+    except Exception as e:
+        print(f"Não foi possível executar o prolog: {e}")
+        return ""
+    
+def sortear_id():
+    if len(ids_usados) >= 100:
+        return None
+    while True:
+        novo_id = randint(1, 100)
+        if novo_id not in ids_usados:
+            return novo_id   
+    
+def mostrar_pergunta():
+    global id_pergunta
 
-        # Topo vermelho fixo
-        self.canvas.create_rectangle(0, 0, 800, 80, fill="red", outline="red")
+    id_pergunta = sortear_id()
+    if id_pergunta is None:
+        encerra_quiz()
+        return
 
-        self.pergunta_idx = 0
-        self.pontuacao = 0
+    comando = f"exibe_pergunta({id_pergunta}), halt."
+    resultado = executar_prolog(comando)
+    
+    canva.delete("pergunta") #apaga pergunta anterior se tiver
 
-        self.frame_slide = tk.Frame(self.canvas, bg="red")
-        self.frame_slide.place(x=800, y=100)  # Começa fora da tela para animar entrada
+    comando = f"exibe_pergunta({id_pergunta}), halt."
+    resultado = executar_prolog(comando)
 
-        self.label_pergunta = tk.Label(self.frame_slide, text="", font=("Arial", 20, "bold"),
-                                       bg="red", fg="white", wraplength=700, justify="center")
-        self.label_pergunta.pack(pady=10)
+    if not resultado or '[' not in resultado:
+        mostrar_pergunta()
+        return
 
-        self.botoes = []
-        for i in range(4):
-            btn = tk.Button(self.frame_slide, text="", font=("Arial", 14), width=30, height=2,
-                            bg="white", fg="black", command=lambda i=i: self.verificar(i))
-            btn.pack(pady=5)
-            self.botoes.append(btn)
+    partes = resultado.split("\n")
+    opcoes = partes[1].strip('[]').split(',')
 
-        self.animar_entrada()
+    if len(partes) >= 2:
+        canva.create_text(250, 150, text=partes[0], font=("Arial", 15), fill="white", width=480, anchor="center", tags="pergunta")
+    
+    letras = ['A', 'B', 'C', 'D']
+    for i, btn in enumerate(botoes):
+        if i < len(opcoes):
+            texto = opcoes[i].strip().strip("'").strip('"')
+            btn.config(
+                text=f"{letras[i]} - {texto}",
+                state=tk.NORMAL,
+                command=lambda idx=i: verificar_resposta(idx)
+            )
 
-    def carregar_perguntas_prolog(self):
-        prolog = Prolog()
-        prolog.consult("base_dados.pl")
-        perguntas = []
-        for p in prolog.query("pergunta(ID, P, L, R)"):
-            perguntas.append({
-                "pergunta": str(p["P"]),
-                "opcoes": list(map(str, p["L"])),
-                "resposta": str(p["R"])
-            })
-        return perguntas
-
-    def animar_entrada(self):
-        self.atualizar_pergunta()
-        x = 800
-
-        def slide():
-            nonlocal x
-            if x > 0:
-                x -= 40
-                self.frame_slide.place(x=x, y=100)
-                self.root.after(10, slide)
-            else:
-                self.frame_slide.place(x=0, y=100)
-        slide()
-
-    def atualizar_pergunta(self):
-        if self.pergunta_idx < len(self.perguntas):
-            p = self.perguntas[self.pergunta_idx]
-            self.label_pergunta.config(text=p["pergunta"])
-            opcoes = p["opcoes"]
-            random.shuffle(opcoes)
-            for i in range(4):
-                self.botoes[i].config(text=opcoes[i], bg="white", state="normal")
         else:
-            self.label_pergunta.config(text=f"Fim do Quiz! Pontuação: {self.pontuacao}/{len(self.perguntas)}")
-            for btn in self.botoes:
-                btn.pack_forget()
+            btn.config(text=" ", state=tk.DISABLED)
 
-    def verificar(self, i):
-        resposta = self.botoes[i]["text"]
-        correta = self.perguntas[self.pergunta_idx]["resposta"]
+def verificar_resposta(opcao):
+    global pontuacao
 
-        for btn in self.botoes:
-            btn.config(state="disabled")
+    resultado = executar_prolog(f"verifica_resposta({id_pergunta}, {opcao + 1}), halt.")
+    for btn in botoes:
+        btn.config(state="disabled")
 
-        if resposta == correta:
-            self.botoes[i].config(bg="green")
-            self.pontuacao += 1
-        else:
-            self.botoes[i].config(bg="red")
-            for btn in self.botoes:
-                if btn["text"] == correta:
-                    btn.config(bg="green")
+    if resultado == "correto":
+        pontuacao += 1
+        piscar(botoes[opcao], "green")
+    else:
+        for i in range(4):    
+            if executar_prolog(f"verifica_resposta({id_pergunta}, {i + 1}), halt.") == "correto":
+                correta = i
+                break
+        piscar(botoes[opcao], "red")
+        piscar(botoes[correta], "green")
 
-        self.root.after(1500, self.proxima)
+    ids_usados.append(id_pergunta)
+    root.after(1000, mostrar_pergunta)
 
-    def proxima(self):
-        self.pergunta_idx += 1
-        self.frame_slide.place(x=800, y=100)
-        self.animar_entrada()
+def encerra_quiz():
+    botao_acaba.config(state="disabled")
+    canva.delete("pergunta")
+    texto_final = f"Fim do Quiz!\nPontuação final: {pontuacao} pontos"
+    canva.create_text(250, 150, text=texto_final, font=("Arial", 18), fill="white", width=480, anchor="center", tags="pergunta")
+    for btn in botoes:
+        btn.config(state="disabled",text="")
+    
+     # Mostra o botão de reinício
+    canva.itemconfigure(reiniciar_btn_id, state="normal")  # Tornando o botão de reinício visível
+    return
 
-# Execução principal
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = QuizApp(root)
-    root.mainloop()
+def reiniciar_quiz():
+    global pontuacao, ids_usados, id_pergunta
+    # Resetar as variáveis
+    pontuacao = 0
+    ids_usados = []
+    id_pergunta = randint(1, 100)
+    canva.delete("pergunta")
+    canva.itemconfigure(reiniciar_btn_id, state="hidden")
+    botao_acaba.config(state="normal")
+    mostrar_pergunta()  # Esconde o botão de reiniciar após o reinício
+
+
+# Função responsável por implementar e tratar resposta do usuário
+def piscar(botao, cor, callback=None, count=0):
+    if count >= 4:
+        if callback:
+            callback()
+        return
+    nova = cor if (count % 2) == 0 else "lightgray"
+    botao.config(bg=nova)
+    root.after(150, lambda: piscar(botao, cor, callback, count+1))
+
+
+#interface nova
+root = tk.Tk()
+root.title("Quiz Prolog")
+root.geometry("500x400")
+root.resizable(False, False)
+
+#----------------------------------
+
+frame_botao = tk.Frame(root, bg="gray", 
+                       height=150, bd=2, 
+                       highlightbackground="black", 
+                       highlightthickness=2)
+frame_botao.pack_propagate(False)
+frame_botao.pack(side="bottom", fill="x")
+
+#----------------------------------
+
+bg_interface = tk.PhotoImage(file="fundo.png")
+
+
+canva = tk.Canvas(root, width=500, height=400, highlightthickness=0)
+canva.pack(fill="both", expand=True)
+canva.create_image(0, 0, anchor="nw", image=bg_interface)
+
+#----------------------------------
+# Adiciona botão Encerrar no canto inferior direito do canvas
+botao_acaba = tk.Button(
+    root, 
+    text="Encerrar", 
+    width=12, 
+    height=1, 
+    font=("Impact", 12), 
+    bg="black", 
+    fg="red", 
+    command=encerra_quiz
+)
+canva.create_window(480, 20, window=botao_acaba, anchor="ne")
+
+# Adiciona botão Reiniciar no canto superior direito, inicialmente invisível
+botao_reiniciar = tk.Button(
+    root, 
+    text="Reiniciar Quiz", 
+    width=12, 
+    height=1, 
+    font=("Impact", 12), 
+    bg="green", 
+    fg="white", 
+    command=reiniciar_quiz
+)
+
+# Inicialmente, o botão de reiniciar está escondido
+reiniciar_btn_id = canva.create_window(20, 20, window=botao_reiniciar, anchor="nw")
+canva.itemconfigure(reiniciar_btn_id, state="hidden")
+
+# Implementa botões de opção no mesmo padrão
+botoes = []
+for i in range(4):
+    btn = tk.Button(
+        frame_botao,
+        text="",
+        width=20,
+        height=2,
+        font=("Arial", 12),
+        bg="lightgray",
+        
+    )
+    btn.grid(row=i // 2, column=i % 2, padx=20, pady=10)
+    botoes.append(btn)
+
+mostrar_pergunta()
+
+root.mainloop()
