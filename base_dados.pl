@@ -25,7 +25,7 @@ pergunta(17, 'Qual linguagem é usada para programação lógica?', ['Python', '
 pergunta(18, 'Quem escreveu "Dom Quixote"?', ['Machado de Assis', 'Cervantes', 'Shakespeare', 'Camões'], 'Cervantes').
 pergunta(19, 'Quantos lados tem um  heptacoságono?', ['27', '17', '70', '37'], '27').
 pergunta(20, 'Quem escreveu o livro “1984”?', ['Aldous Huxley', 'George Orwell', 'Paulo Coelho', 'Conn Iggulden'], 'George Orwell').
-pergunta(21, 'O que é um haicai?', ['Um poema curto', 'Um instrumento musical', 'Uma dança', 'Uma pintura'], 'Um poema curto').
+pergunta(21, 'Quem foi o primeiro Faraó?', ['Tutancâmon', 'Ozymandias', 'Menés', 'Ptolomeu'], 'Menés').
 pergunta(22, 'Em que continente está o Brasil?', ['Ásia', 'África', 'América', 'Europa'], 'América').
 pergunta(23, 'Qual é a montanha mais alta do mundo?', ['Everest', 'K2', 'Kilimanjaro', 'Aconcágua'], 'Everest').
 pergunta(24, 'Qual é a língua oficial do México?', ['Inglês', 'Português', 'Espanhol', 'Francês'], 'Espanhol').
@@ -59,7 +59,7 @@ pergunta(51, 'Quantos vértices tem um cubo?', ['6', '8', '10', '12'], '8').
 pergunta(52, 'Qual a capital da Argentina?', ['Buenos Aires', 'Rosário', 'Córdoba', 'Mendoza'], 'Buenos Aires').
 pergunta(53, 'Quem escreveu o livro "A Metamorfose"?', ['Kafka', 'Orwell', 'Camus', 'Huxley'], 'Kafka').
 pergunta(54, 'Qual animal é símbolo da paz?', ['Águia', 'Cobra', 'Pomba', 'Cavalo'], 'Pomba').
-pergunta(55, 'Em que continente fica o Egito?', ['Ásia', 'Europa', 'África', 'Oceania'], 'África').
+pergunta(55, 'Em que continente fica o Egito?', ['América', 'Europa', 'África', 'Oceania'], 'África').
 pergunta(56, 'Qual é o idioma mais falado no mundo?', ['Inglês', 'Espanhol', 'Chinês mandarim', 'Hindi'], 'Chinês mandarim').
 pergunta(57, 'Quantos graus tem um ângulo reto?', ['90', '180', '45', '360'], '90').
 pergunta(58, 'Qual é a moeda do Japão?', ['Dólar', 'Iene', 'Euro', 'Won'], 'Iene').
