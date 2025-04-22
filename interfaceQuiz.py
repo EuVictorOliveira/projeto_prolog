@@ -1,12 +1,12 @@
 import subprocess
 import tkinter as tk
-from random import randint
+from random import choice
 
 # Define o caminho para conexão com o quiz
 PROLOG_PATH = ["swipl", "-q", "-s", "quiz.pl", "-g"]
 
 id_pergunta = 1
-ids_usados = []
+ids_nao_usados = [x for x in range(1,101)]
 pontuacao = 0
 ultima_resposta = None
 botao_reiniciar = None
@@ -21,12 +21,11 @@ def executar_prolog(comando):
         return ""
     
 def sortear_id():
-    if len(ids_usados) >= 100:
+    global ids_nao_usados
+    if len(ids_nao_usados) == 0:
         return None
-    while True:
-        novo_id = randint(1, 100)
-        if novo_id not in ids_usados:
-            return novo_id   
+    novo_id = choice(ids_nao_usados)
+    return novo_id
     
 def mostrar_pergunta():
     global id_pergunta
@@ -68,7 +67,7 @@ def mostrar_pergunta():
             btn.config(text=" ", state=tk.DISABLED)
 
 def verificar_resposta(opcao):
-    global pontuacao
+    global pontuacao, id_pergunta
 
     resultado = executar_prolog(f"verifica_resposta({id_pergunta}, {opcao + 1}), halt.")
     for btn in botoes:
@@ -85,7 +84,7 @@ def verificar_resposta(opcao):
         piscar(botoes[opcao], "red")
         piscar(botoes[correta], "green")
 
-    ids_usados.append(id_pergunta)
+    ids_nao_usados.remove(id_pergunta)
     root.after(1000, mostrar_pergunta)
 
 def encerra_quiz():
@@ -101,11 +100,11 @@ def encerra_quiz():
     return
 
 def reiniciar_quiz():
-    global pontuacao, ids_usados, id_pergunta
+    global pontuacao, ids_nao_usados, id_pergunta
     # Resetar as variáveis
     pontuacao = 0
-    ids_usados = []
-    id_pergunta = randint(1, 100)
+    id_pergunta = 1
+    ids_nao_usados = [x for x in range(1,101)]
     canva.delete("pergunta")
     canva.itemconfigure(reiniciar_btn_id, state="hidden")
     botao_acaba.config(state="normal")
