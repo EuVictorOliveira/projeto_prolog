@@ -28,8 +28,8 @@ def sortear_id():
     return novo_id
     
 def mostrar_pergunta():
-    global id_pergunta
-
+    global id_pergunta, pontuacao
+    canva.create_text(20, 20, text=f"Pontos: {pontuacao}", font=("Arial", 12), fill="white", width=90, anchor="nw", tags="pontos")
     id_pergunta = sortear_id()
     if id_pergunta is None:
         encerra_quiz()
@@ -75,6 +75,8 @@ def verificar_resposta(opcao):
 
     if resultado == "correto":
         pontuacao += 1
+        canva.delete("pontos")
+        canva.create_text(20, 20, text=f"Pontos: {pontuacao}", font=("Arial", 12), fill="white", width=90, anchor="nw", tags="pontos")
         piscar(botoes[opcao], "green")
     else:
         for i in range(4):    
@@ -104,6 +106,7 @@ def reiniciar_quiz():
     # Resetar as variáveis
     pontuacao = 0
     id_pergunta = 1
+    canva.delete("pontos")
     ids_nao_usados = [x for x in range(1,101)]
     canva.delete("pergunta")
     canva.itemconfigure(reiniciar_btn_id, state="hidden")
@@ -183,13 +186,16 @@ for i in range(4):
         frame_botao,
         text="",
         width=20,
-        height=2,
+        height=3,
+        wraplength=150,
         font=("Arial", 12),
         bg="lightgray",
         
     )
     btn.grid(row=i // 2, column=i % 2, padx=20, pady=10)
     botoes.append(btn)
+
+canva.create_text(20, 20, text=f"Pontos: {pontuacao}", font=("Arial", 12), fill="white", width=90, anchor="nw", tags="pontos")
 
 mostrar_pergunta()
 
