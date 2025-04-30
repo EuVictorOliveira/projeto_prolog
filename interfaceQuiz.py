@@ -90,9 +90,10 @@ def verificar_resposta(opcao):
     root.after(1000, mostrar_pergunta)
 
 def encerra_quiz():
+    espaco = " "
     botao_acaba.config(state="disabled")
     canva.delete("pergunta")
-    texto_final = f"Fim do Quiz!\nPontuação final: {pontuacao} pontos"
+    texto_final = f"{espaco*10}Fim do Quiz!\n\nPontuação final: {pontuacao} pontos"
     canva.create_text(250, 150, text=texto_final, font=("Arial", 18), fill="white", width=480, anchor="center", tags="pergunta")
     for btn in botoes:
         btn.config(state="disabled",text="")
